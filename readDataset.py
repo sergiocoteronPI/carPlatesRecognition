@@ -53,16 +53,17 @@ def cargarLote(clasMatOcr, filesNomb, desde, hasta):
 
     for name in filesNomb[desde : hasta]:
         
-        imgArray.append(retocar(clasMatOcr, cv2.imread(name,0)).astype("uint8"))
         try:
-            
+
+            imgArray.append(retocar(clasMatOcr, cv2.imread(name,0)).astype("uint8"))
 
             finalName = []
             nameRev = os.path.basename(name).split('.')[0]
             for letra in nameRev:
                 if letra.upper() in clasMatOcr.dict:
-                    finalName .append(letra.upper())
-            finalName.append(200)
+                    finalName .append(clasMatOcr.dict.index(letra.upper()))
+            for _ in range(len(finalName), 10):
+                finalName.append(200)
                     
             labelArray.append(finalName)
         except:

@@ -58,7 +58,7 @@ print('')
 # ===================================================================================================================================================== #
 
 imgArrayTrain, labelArrayTrain = cargarLote(clasMatOcr, datasetNames.namesList,0,len(datasetNames.namesList)) # Así es como se cargan los lotes
-
+print(labelArrayTrain)
 model.fit(x = imgArrayTrain, y = labelArrayTrain,
           batch_size = clasMatOcr.batch_size,
           epochs=5,
