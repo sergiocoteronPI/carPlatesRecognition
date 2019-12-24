@@ -24,7 +24,7 @@ class claseControladorReconocimientoDeMatriculas:
         self.dict = _dict
 
 clasMatOcr = claseControladorReconocimientoDeMatriculas(threshold = 0.5,
-                                                          batch_size = 1,
+                                                          batch_size = 5,
                                                           dim_fil = 32, dim_col = 128,
                                                           learning_ratio = 1e-3,
                                                           rpi = 'dataset/',

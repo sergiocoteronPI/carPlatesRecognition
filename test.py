@@ -2,6 +2,8 @@
 #                                         Importamos las librerias que sean necesarias así como nuestras clases y funciones.
 import tensorflow as tf
 
+import cv2
+
 import os
 import numpy as np
 from random import shuffle
@@ -57,15 +59,35 @@ print(model.summary())
 print('')
 # ===================================================================================================================================================== #
 
+
+def traducir(a_traducir):
+    frase = ''
+    for i in a_traducir:
+        if i == 200:
+            break
+        frase += clasMatOcr.dict[i]
+    return frase
+    
+def decode(inputs, sequence_length):
+
+    #return tf.nn.ctc_beam_search_decoder(inputs,sequence_length,beam_width=100,top_paths=1,merge_repeated=True)
+    #return tf.keras.backend.ctc_decode(inputs,sequence_length,greedy=True,beam_width=100,top_paths=1)
+    #return tf.nn.ctc_greedy_decoder(inputs,sequence_length,merge_repeated=True)
+
+    return tf.nn.ctc_greedy_decoder(inputs, sequence_length=sequence_length)#features['seq_lens'])
+
 imgArrayTrain, labelArrayTrain = cargarLote(clasMatOcr, datasetNames.namesList,0,len(datasetNames.namesList)) # Así es como se cargan los lotes
 
-model.fit(x = imgArrayTrain, y = labelArrayTrain,
-          batch_size = clasMatOcr.batch_size,
-          epochs=20,
-          verbose=1)
+for imagen, etiqueta in zip(imgArrayTrain, labelArrayTrain):
 
-print('')
-print(' ===== salvando modelo =====')
-print('')
+    net_out_ = model.predict(x=np.array([imagen]))
+    net_out_reorganized = np.transpose(net_out_, (1, 0, 2))
+        
+    decoded, log_prob = decode(net_out_reorganized, 1*[32])        
+    decoded = tf.to_int32(decoded[0])
 
-tf.keras.models.save_model(model, clasMatOcr.h5)
+    decoded_traducido = tf.keras.backend.eval(decoded)[0]
+
+    frase_predicha = traducir(decoded_traducido)
+    
+    print('Etiqueta: ', traducir(etiqueta), ' -- Prediccion: ', frase_predicha)
