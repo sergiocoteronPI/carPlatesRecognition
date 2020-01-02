@@ -9,7 +9,7 @@ import numpy as np
 from random import shuffle
 
 from classControlOCR import clasMatOcr
-from readDataset import cargarLote, leerDatos
+from readDataset import cargarLote, leerDatos, cargarTxt
 
 from mark1 import mark1, lossFunction
 # ===================================================================================================================================================== #
@@ -25,6 +25,9 @@ namesList = leerDatos(clasMatOcr.rpi)
 shuffle(namesList)
 
 datasetNames = nameOfDataset(namesList)
+datasetLabelImgNames, datasetLabelImgLabel = cargarTxt("labelOCR/label.txt")
+if datasetLabelImgNames == [] or datasetLabelImgLabel == []:
+    input("Esto esta fatal hayq eu parar la ejecucion YA")
 # ===================================================================================================================================================== #
 
 
@@ -76,14 +79,16 @@ def decode(inputs, sequence_length):
 
     return tf.nn.ctc_greedy_decoder(inputs, sequence_length=sequence_length)#features['seq_lens'])
 
-imgArrayTrain, labelArrayTrain = cargarLote(clasMatOcr, datasetNames.namesList,0,len(datasetNames.namesList)) # Así es como se cargan los lotes
+imgArrayTrain, labelArrayTrain = cargarLote(clasMatOcr,\
+                                            datasetNames.namesList, datasetLabelImgNames, datasetLabelImgLabel,\
+                                            0,len(datasetNames.namesList)) # Así es como se cargan los lotes
 
 for imagen, etiqueta in zip(imgArrayTrain, labelArrayTrain):
 
     net_out_ = model.predict(x=np.array([imagen]))
     net_out_reorganized = np.transpose(net_out_, (1, 0, 2))
         
-    decoded, log_prob = decode(net_out_reorganized, 1*[32])        
+    decoded, logProb = decode(net_out_reorganized, 1*[32])        
     decoded = tf.to_int32(decoded[0])
 
     decoded_traducido = tf.keras.backend.eval(decoded)[0]

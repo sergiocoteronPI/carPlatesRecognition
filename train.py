@@ -7,7 +7,7 @@ import numpy as np
 from random import shuffle
 
 from classControlOCR import clasMatOcr
-from readDataset import cargarLote, leerDatos
+from readDataset import cargarLote, leerDatos, cargarTxt
 
 from mark1 import mark1, lossFunction
 # ===================================================================================================================================================== #
@@ -23,6 +23,9 @@ namesList = leerDatos(clasMatOcr.rpi)
 shuffle(namesList)
 
 datasetNames = nameOfDataset(namesList)
+datasetLabelImgNames, datasetLabelImgLabel = cargarTxt("labelOCR/label.txt")
+if datasetLabelImgNames == [] or datasetLabelImgLabel == []:
+    input("Esto esta fatal hayq eu parar la ejecucion YA")
 # ===================================================================================================================================================== #
 
 
@@ -57,7 +60,9 @@ print(model.summary())
 print('')
 # ===================================================================================================================================================== #
 
-imgArrayTrain, labelArrayTrain = cargarLote(clasMatOcr, datasetNames.namesList,0,len(datasetNames.namesList)) # Así es como se cargan los lotes
+imgArrayTrain, labelArrayTrain = cargarLote(clasMatOcr,\
+                                            datasetNames.namesList, datasetLabelImgNames, datasetLabelImgLabel,\
+                                            0,len(datasetNames.namesList)) # Así es como se cargan los lotes
 
 model.fit(x = imgArrayTrain, y = labelArrayTrain,
           batch_size = clasMatOcr.batch_size,

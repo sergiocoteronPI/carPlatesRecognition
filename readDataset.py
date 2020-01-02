@@ -29,6 +29,18 @@ def retocar(clasMatOcr, img):
     
     return zeros
 
+def cargarTxt(_path):
+
+    datasetLabelImgNames = []
+    datasetLabelImgLabel = []
+
+    with open(_path, "r") as f:
+        for line in f:
+            datasetLabelImgNames.append(line.rstrip("\n").split(",")[0])
+            datasetLabelImgLabel.append(line.rstrip("\n").split(",")[1])
+
+    return datasetLabelImgNames, datasetLabelImgLabel
+
 def leerDatos(_path, ctrlArchPerm = True ,archivosPermitidos = ["jpg","jpeg","png","JPG"]):
 
     filesNomb = []
@@ -46,19 +58,19 @@ def leerDatos(_path, ctrlArchPerm = True ,archivosPermitidos = ["jpg","jpeg","pn
 
     return filesNomb
 
-def cargarLote(clasMatOcr, filesNomb, desde, hasta):
+def cargarLote(clasMatOcr, filesNomb, datasetLabelImgNames, datasetLabelImgLabel, desde, hasta):
 
     labelArray = []
     imgArray = []
 
-    for name in filesNomb[desde : hasta]:
+    for name, nameRev in zip(datasetLabelImgNames[desde : hasta], datasetLabelImgLabel[desde:hasta]):
         
         try:
 
             imgArray.append(retocar(clasMatOcr, cv2.imread(name,0)).astype("uint8"))
-
+            
             finalName = []
-            nameRev = os.path.basename(name).split('.')[0]
+            #nameRev = os.path.basename(name).split('.')[0]
             for letra in nameRev:
                 if letra.upper() in clasMatOcr.dict:
                     finalName .append(clasMatOcr.dict.index(letra.upper()))
@@ -69,5 +81,7 @@ def cargarLote(clasMatOcr, filesNomb, desde, hasta):
         except:
             return None, None
 
-    return np.array(imgArray), np.array(labelArray)
+    nad = clasMatOcr.batch_size*int(len(imgArray) / clasMatOcr.batch_size)
+
+    return np.array(imgArray[:nad]), np.array(labelArray[:nad])
     
