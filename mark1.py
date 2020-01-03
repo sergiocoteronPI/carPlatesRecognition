@@ -95,7 +95,7 @@ def mark1():
 
     h_c1 = leaky_relu(batch_norm(conv1d(inputs = h_c1, f = 1024, k = 3, s = 1, padding = 'same')))
 
-    h_c1 = tf.keras.layers.Dropout(0.0)(h_c1)
+    #h_c1 = tf.keras.layers.Dropout(0.0)(h_c1)
     
     h_c1 = tf.keras.layers.Dense(1024)(h_c1)
     h_c1 = tf.keras.layers.Dense(len(clasMatOcr.dict) + 1)(h_c1)

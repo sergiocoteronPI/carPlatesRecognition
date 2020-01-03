@@ -17,14 +17,6 @@ from mark1 import mark1, lossFunction
 
 # ===================================================================================================================================================== #
 #                                         Creamos una clase para tener ahí los nombres del datset. Como se puede ver las imágenes deben estar en _path = clasMatOcr.rpi
-class nameOfDataset:
-    def __init__(self, namesList):
-        self.namesList = namesList
-            
-namesList = leerDatos(clasMatOcr.rpi)
-shuffle(namesList)
-
-datasetNames = nameOfDataset(namesList)
 datasetLabelImgNames, datasetLabelImgLabel = cargarTxt("labelOCR/label.txt")
 if datasetLabelImgNames == [] or datasetLabelImgLabel == []:
     input("Esto esta fatal hayq eu parar la ejecucion YA")
@@ -80,8 +72,9 @@ def decode(inputs, sequence_length):
     return tf.nn.ctc_greedy_decoder(inputs, sequence_length=sequence_length)#features['seq_lens'])
 
 imgArrayTrain, labelArrayTrain = cargarLote(clasMatOcr,\
-                                            datasetNames.namesList, datasetLabelImgNames, datasetLabelImgLabel,\
-                                            0,len(datasetNames.namesList)) # Así es como se cargan los lotes
+                                            datasetLabelImgNames, datasetLabelImgLabel,\
+                                            0,len(datasetLabelImgNames),\
+                                            preProcess = False) # Así es como se cargan los lotes
 
 for imagen, etiqueta in zip(imgArrayTrain, labelArrayTrain):
 

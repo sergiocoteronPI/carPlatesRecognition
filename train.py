@@ -10,22 +10,16 @@ from classControlOCR import clasMatOcr
 from readDataset import cargarLote, leerDatos, cargarTxt
 
 from mark1 import mark1, lossFunction
+
+import sys
 # ===================================================================================================================================================== #
 
 
 # ===================================================================================================================================================== #
-#                                         Creamos una clase para tener ahí los nombres del datset. Como se puede ver las imágenes deben estar en _path = clasMatOcr.rpi
-class nameOfDataset:
-    def __init__(self, namesList):
-        self.namesList = namesList
-            
-namesList = leerDatos(clasMatOcr.rpi)
-shuffle(namesList)
-
-datasetNames = nameOfDataset(namesList)
+#                                         Leemos el txt (o los txts) que nos dice donde está la imagen y cual es la etiqueta de esta. Luego cargaremos los datos con la funcion cargarLote
 datasetLabelImgNames, datasetLabelImgLabel = cargarTxt("labelOCR/label.txt")
 if datasetLabelImgNames == [] or datasetLabelImgLabel == []:
-    input("Esto esta fatal hayq eu parar la ejecucion YA")
+    input("Esto esta fatal hay que parar la ejecucion YA")
 # ===================================================================================================================================================== #
 
 
@@ -61,16 +55,33 @@ print('')
 # ===================================================================================================================================================== #
 
 imgArrayTrain, labelArrayTrain = cargarLote(clasMatOcr,\
-                                            datasetNames.namesList, datasetLabelImgNames, datasetLabelImgLabel,\
-                                            0,len(datasetNames.namesList)) # Así es como se cargan los lotes
+                                            datasetLabelImgNames, datasetLabelImgLabel,\
+                                            0,len(datasetLabelImgNames),\
+                                            preProcess = True) # Así es como se cargan los lotes
 
-model.fit(x = imgArrayTrain, y = labelArrayTrain,
-          batch_size = clasMatOcr.batch_size,
-          epochs=20,
-          verbose=1)
+try:
+    model.fit(x = imgArrayTrain, y = labelArrayTrain,
+            batch_size = clasMatOcr.batch_size,
+            epochs=5,
+            verbose=1)
 
-print('')
-print(' ===== salvando modelo =====')
-print('')
+    print('')
+    print(' ===== salvando modelo =====')
+    print('')
 
-tf.keras.models.save_model(model, clasMatOcr.h5)
+    tf.keras.models.save_model(model, clasMatOcr.h5)
+except:
+
+    print("")
+    print("")
+    guardar = input("Quieres guardar el modelo: ")
+    print("")
+    if guardar in ["s", "si", "y", "yes", "Y"]:
+
+        print('')
+        print(' ===== salvando modelo =====')
+        print('')
+        
+        tf.keras.models.save_model(model, clasMatOcr.h5)
+    else:
+        sys.exit

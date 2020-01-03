@@ -4,10 +4,23 @@ import string
 import cv2
 import os
 
-def retocar(clasMatOcr, img):
+def retocar(clasMatOcr, img, preProcess = False):
 
     zeros = np.zeros([clasMatOcr.dim_fil,clasMatOcr.dim_col])
     im_sha_1, im_sha_2 = img.shape
+
+    if preProcess:
+
+        #cv2.imshow("imgOrg", cv2.resize(img, (200,64)))
+
+        img = img[np.random.randint(30):im_sha_1 - np.random.randint(30), np.random.randint(30):im_sha_2 - np.random.randint(30)]
+        im_sha_1, im_sha_2 = img.shape
+
+        img = rotate_bound(img, np.random.randint(-30,30))
+
+        #cv2.imshow("imgFinal", cv2.resize(img, (200,64)))
+        #cv2.waitKey(0)
+
     if im_sha_1 >= clasMatOcr.dim_fil:
         if im_sha_2 >= clasMatOcr.dim_col:
             try:
@@ -28,6 +41,23 @@ def retocar(clasMatOcr, img):
         zeros[0:im_sha_1, 0:im_sha_2] = img
     
     return zeros
+
+def rotate_bound(image, angle):
+
+    (h, w) = image.shape[:2]
+    (cX, cY) = (w // 2, h // 2)
+ 
+    M = cv2.getRotationMatrix2D((cX, cY), -angle, 1.0)
+    cos = np.abs(M[0, 0])
+    sin = np.abs(M[0, 1])
+ 
+    nW = int((h * sin) + (w * cos))
+    nH = int((h * cos) + (w * sin))
+ 
+    M[0, 2] += (nW / 2) - cX
+    M[1, 2] += (nH / 2) - cY
+ 
+    return cv2.warpAffine(image, M, (nW, nH))
 
 def cargarTxt(_path):
 
@@ -58,28 +88,29 @@ def leerDatos(_path, ctrlArchPerm = True ,archivosPermitidos = ["jpg","jpeg","pn
 
     return filesNomb
 
-def cargarLote(clasMatOcr, filesNomb, datasetLabelImgNames, datasetLabelImgLabel, desde, hasta):
+def cargarLote(clasMatOcr, datasetLabelImgNames, datasetLabelImgLabel, desde, hasta, preProcess = False):
 
     labelArray = []
     imgArray = []
 
-    for name, nameRev in zip(datasetLabelImgNames[desde : hasta], datasetLabelImgLabel[desde:hasta]):
-        
-        try:
+    for _ in range(20):
 
-            imgArray.append(retocar(clasMatOcr, cv2.imread(name,0)).astype("uint8"))
+        for name, nameRev in zip(datasetLabelImgNames[desde : hasta], datasetLabelImgLabel[desde : hasta]):
             
-            finalName = []
-            #nameRev = os.path.basename(name).split('.')[0]
-            for letra in nameRev:
-                if letra.upper() in clasMatOcr.dict:
-                    finalName .append(clasMatOcr.dict.index(letra.upper()))
-            for _ in range(len(finalName), 10):
-                finalName.append(200)
-                    
-            labelArray.append(finalName)
-        except:
-            return None, None
+            try:
+                imgArray.append(retocar(clasMatOcr, cv2.imread(name,0), preProcess = preProcess).astype("uint8"))
+                
+                finalName = []
+                #nameRev = os.path.basename(name).split('.')[0]
+                for letra in nameRev:
+                    if letra.upper() in clasMatOcr.dict:
+                        finalName .append(clasMatOcr.dict.index(letra.upper()))
+                for _ in range(len(finalName), 10):
+                    finalName.append(200)
+                        
+                labelArray.append(finalName)
+            except:
+                continue
 
     nad = clasMatOcr.batch_size*int(len(imgArray) / clasMatOcr.batch_size)
 

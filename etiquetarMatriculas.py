@@ -37,15 +37,27 @@ for name, contador in zip(imgNombres, range(len(imgNombres))):
 
     if name in nombreVetados:
         continue
+    
+    try:
+        img = cv2.imread(name)
 
-    img = cv2.imread(name)
+        sh1,sha2,_ = img.shape
 
-    cv2.imshow("dfg", img)
-    cv2.waitKey(1)
+        if sha2 > 400:
+            img = cv2.resize(img, (400, 128))
+
+        cv2.imshow("dfg", img)
+        cv2.waitKey(1)
+    except:
+        continue
 
     matricula = input("Matricula " + str(contador) + "/" + str(len(imgNombres)) + ": ")
 
     if matricula=="":
+        continue
+
+    if matricula=="*delete":
+        os.remove(name)
         continue
 
     newMat = ""
