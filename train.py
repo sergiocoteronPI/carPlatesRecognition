@@ -54,34 +54,37 @@ print(model.summary())
 print('')
 # ===================================================================================================================================================== #
 
-imgArrayTrain, labelArrayTrain = cargarLote(clasMatOcr,\
-                                            datasetLabelImgNames, datasetLabelImgLabel,\
-                                            0,len(datasetLabelImgNames),\
-                                            preProcess = True) # Así es como se cargan los lotes
+while True:
 
-try:
-    model.fit(x = imgArrayTrain, y = labelArrayTrain,
-            batch_size = clasMatOcr.batch_size,
-            epochs=5,
-            verbose=1)
+    imgArrayTrain, labelArrayTrain = cargarLote(clasMatOcr,\
+                                                datasetLabelImgNames, datasetLabelImgLabel,\
+                                                0,len(datasetLabelImgNames),\
+                                                preProcess = True) # Así es como se cargan los lotes
 
-    print('')
-    print(' ===== salvando modelo =====')
-    print('')
-
-    tf.keras.models.save_model(model, clasMatOcr.h5)
-except:
-
-    print("")
-    print("")
-    guardar = input("Quieres guardar el modelo: ")
-    print("")
-    if guardar in ["s", "si", "y", "yes", "Y"]:
+    try:
+        model.fit(x = imgArrayTrain, y = labelArrayTrain,
+                batch_size = clasMatOcr.batch_size,
+                epochs=1,
+                verbose=1)
 
         print('')
         print(' ===== salvando modelo =====')
         print('')
-        
+
         tf.keras.models.save_model(model, clasMatOcr.h5)
-    else:
-        sys.exit
+    except:
+
+        print("")
+        print("")
+        guardar = input("Quieres guardar el modelo: ")
+        print("")
+        if guardar in ["s", "si", "y", "yes", "Y"]:
+
+            print('')
+            print(' ===== salvando modelo =====')
+            print('')
+            
+            tf.keras.models.save_model(model, clasMatOcr.h5)
+            break
+        else:
+            sys.exit

@@ -93,7 +93,7 @@ def cargarLote(clasMatOcr, datasetLabelImgNames, datasetLabelImgLabel, desde, ha
     labelArray = []
     imgArray = []
 
-    for _ in range(20):
+    for _ in range(10):
 
         for name, nameRev in zip(datasetLabelImgNames[desde : hasta], datasetLabelImgLabel[desde : hasta]):
             

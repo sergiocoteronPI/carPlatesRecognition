@@ -22,6 +22,10 @@ if datasetLabelImgNames == [] or datasetLabelImgLabel == []:
     input("Esto esta fatal hayq eu parar la ejecucion YA")
 # ===================================================================================================================================================== #
 
+from difflib import SequenceMatcher
+
+def similar(a, b):
+    return SequenceMatcher(None, a, b).ratio()
 
 # ===================================================================================================================================================== #
 #                                         Cargamos el modelo o lo creamos en caso de no existir.
@@ -76,7 +80,8 @@ imgArrayTrain, labelArrayTrain = cargarLote(clasMatOcr,\
                                             0,len(datasetLabelImgNames),\
                                             preProcess = False) # Así es como se cargan los lotes
 
-for imagen, etiqueta in zip(imgArrayTrain, labelArrayTrain):
+precisionMedia = 0
+for imagen, etiqueta, contador in zip(imgArrayTrain, labelArrayTrain, range(1,len(imgArrayTrain))):
 
     net_out_ = model.predict(x=np.array([imagen]))
     net_out_reorganized = np.transpose(net_out_, (1, 0, 2))
@@ -88,4 +93,8 @@ for imagen, etiqueta in zip(imgArrayTrain, labelArrayTrain):
 
     frase_predicha = traducir(decoded_traducido)
     
-    print('Etiqueta: ', traducir(etiqueta), ' -- Prediccion: ', frase_predicha)
+    labelString = traducir(etiqueta)
+
+    precisionMedia += similar(labelString, frase_predicha)
+
+    print('Etiqueta: ', labelString, ' -- Prediccion: ', frase_predicha, " -- Precision: ", precisionMedia/contador)
