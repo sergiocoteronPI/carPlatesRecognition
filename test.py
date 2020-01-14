@@ -17,7 +17,7 @@ from mark1 import mark1, lossFunction
 
 # ===================================================================================================================================================== #
 #                                         Creamos una clase para tener ahí los nombres del datset. Como se puede ver las imágenes deben estar en _path = clasMatOcr.rpi
-datasetLabelImgNames, datasetLabelImgLabel = cargarTxt("labelOCR/label.txt")
+datasetLabelImgNames, datasetLabelImgLabel = cargarTxt(clasMatOcr.rpi + "labelOCR/label.txt")
 if datasetLabelImgNames == [] or datasetLabelImgLabel == []:
     input("Esto esta fatal hayq eu parar la ejecucion YA")
 # ===================================================================================================================================================== #
@@ -80,6 +80,27 @@ imgArrayTrain, labelArrayTrain = cargarLote(clasMatOcr,\
                                             0,len(datasetLabelImgNames),\
                                             preProcess = False) # Así es como se cargan los lotes
 
+
+### Código para desordenar las listas ###
+### ================================= ###
+for i in range(len(imgArrayTrain)):
+
+    num1 = np.random.randint(len(imgArrayTrain))
+    num2 = np.random.randint(len(imgArrayTrain))
+
+    if num1 == num2:
+        continue
+
+    auxImgArrayTrain = imgArrayTrain[num1]
+    auxLabelArrayTrain = labelArrayTrain[num1]
+
+    imgArrayTrain[num1] = imgArrayTrain[num2]
+    labelArrayTrain[num1] = labelArrayTrain[num2]
+
+    imgArrayTrain[num2] = auxImgArrayTrain
+    labelArrayTrain[num2] = auxLabelArrayTrain
+### ================================= ###
+
 precisionMedia = 0
 for imagen, etiqueta, contador in zip(imgArrayTrain, labelArrayTrain, range(1,len(imgArrayTrain))):
 
@@ -95,6 +116,10 @@ for imagen, etiqueta, contador in zip(imgArrayTrain, labelArrayTrain, range(1,le
     
     labelString = traducir(etiqueta)
 
+    probs = tf.keras.backend.eval(logProb)[0][0]
     precisionMedia += similar(labelString, frase_predicha)
 
-    print('Etiqueta: ', labelString, ' -- Prediccion: ', frase_predicha, " -- Precision: ", precisionMedia/contador)
+    if contador % 100 == 0:
+        print("Etiqueta: ", labelString, " -- Prediccion: ", frase_predicha,\
+            " -- Precision: ", "{:.2f}".format(similar(labelString, frase_predicha)),\
+            " -- Accuracy: ", "{:.2f}".format(precisionMedia/contador))

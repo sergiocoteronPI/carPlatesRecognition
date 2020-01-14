@@ -20,7 +20,7 @@ def leerDatos(_path, ctrlArchPerm = True ,archivosPermitidos = ["jpg","jpeg","pn
     return filesNomb
 
 magicNumb = 30
-imgNombres = leerDatos("baseDeDatos/matriculas20190113/")
+imgNombres = leerDatos("baseDeDatos/testImgs/")
 
 txtOCR = leerDatos("baseDeDatos/labelOCR/", archivosPermitidos=["txt"])
 
@@ -32,18 +32,15 @@ if len(txtOCR) == 1:
 else:
     input("NADA QUE LEER")
 
+
+preMatricula = "primeraMatricula"
 for name, contador in zip(imgNombres, range(len(imgNombres))):
 
     if os.path.basename(name) in nombreVetados:
         continue
     
     try:
-        img = cv2.imread(name)
-
-        sh1,sha2,_ = img.shape
-
-        if sha2 > 400:
-            img = cv2.resize(img, (400, 128))
+        img = cv2.resize(cv2.imread(name), (200,90))
 
         cv2.imshow("dfg", img)
         cv2.waitKey(1)
@@ -52,8 +49,10 @@ for name, contador in zip(imgNombres, range(len(imgNombres))):
 
     matricula = input("Matricula " + str(contador) + "/" + str(len(imgNombres)) + ": ")
 
-    if matricula=="":
-        continue
+    if matricula!="":
+        preMatricula = matricula
+    else:
+        matricula = preMatricula
 
     if matricula=="*delete":
         os.remove(name)
@@ -64,4 +63,4 @@ for name, contador in zip(imgNombres, range(len(imgNombres))):
         newMat += letra.upper()
 
     with open("baseDeDatos/labelOCR/label.txt", "a") as f:
-        f.write(name.lstrip("baseDeDatos/") + "," + str(newMat) + "\n")
+        f.write("testImgs/" + os.path.basename(name) + "," + str(newMat) + "\n")

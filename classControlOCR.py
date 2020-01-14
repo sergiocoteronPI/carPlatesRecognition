@@ -24,8 +24,8 @@ class claseControladorReconocimientoDeMatriculas:
         self.dict = _dict
 
 clasMatOcr = claseControladorReconocimientoDeMatriculas(threshold = 0.5,
-                                                        batch_size = 10,
+                                                        batch_size = 40,
                                                         dim_fil = 32, dim_col = 128,
-                                                        learning_ratio = 1e-3,
-                                                        rpi = 'datasetOCR/',
+                                                        learning_ratio = 1e-4,
+                                                        rpi = 'baseDeDatos/',
                                                         h5 = 'mark1_matocr.h5')

@@ -4,6 +4,8 @@ import string
 import cv2
 import os
 
+from random import shuffle
+
 def retocar(clasMatOcr, img, preProcess = False):
 
     zeros = np.zeros([clasMatOcr.dim_fil,clasMatOcr.dim_col])
@@ -13,7 +15,7 @@ def retocar(clasMatOcr, img, preProcess = False):
 
         #cv2.imshow("imgOrg", cv2.resize(img, (200,64)))
 
-        img = img[np.random.randint(30):im_sha_1 - np.random.randint(30), np.random.randint(30):im_sha_2 - np.random.randint(30)]
+        img = img[np.random.randint(15):im_sha_1 - np.random.randint(15), np.random.randint(15):im_sha_2 - np.random.randint(15)]
         im_sha_1, im_sha_2 = img.shape
 
         img = rotate_bound(img, np.random.randint(-30,30))
@@ -21,6 +23,7 @@ def retocar(clasMatOcr, img, preProcess = False):
         #cv2.imshow("imgFinal", cv2.resize(img, (200,64)))
         #cv2.waitKey(0)
 
+    im_sha_1, im_sha_2 = img.shape
     if im_sha_1 >= clasMatOcr.dim_fil:
         if im_sha_2 >= clasMatOcr.dim_col:
             try:
@@ -64,10 +67,16 @@ def cargarTxt(_path):
     datasetLabelImgNames = []
     datasetLabelImgLabel = []
 
+    todasLasLineas = []
     with open(_path, "r") as f:
         for line in f:
-            datasetLabelImgNames.append(line.rstrip("\n").split(",")[0])
-            datasetLabelImgLabel.append(line.rstrip("\n").split(",")[1])
+            todasLasLineas.append(line)
+
+    shuffle(todasLasLineas)
+
+    for line in todasLasLineas:
+        datasetLabelImgNames.append(line.rstrip("\n").split(",")[0])
+        datasetLabelImgLabel.append(line.rstrip("\n").split(",")[1])
 
     return datasetLabelImgNames, datasetLabelImgLabel
 
@@ -93,12 +102,12 @@ def cargarLote(clasMatOcr, datasetLabelImgNames, datasetLabelImgLabel, desde, ha
     labelArray = []
     imgArray = []
 
-    for _ in range(10):
+    for _ in range(1):
 
         for name, nameRev in zip(datasetLabelImgNames[desde : hasta], datasetLabelImgLabel[desde : hasta]):
             
             try:
-                imgArray.append(retocar(clasMatOcr, cv2.imread(name,0), preProcess = preProcess).astype("uint8"))
+                imgArray.append(retocar(clasMatOcr, cv2.imread(clasMatOcr.rpi + name,0), preProcess = preProcess).astype("uint8"))
                 
                 finalName = []
                 #nameRev = os.path.basename(name).split('.')[0]
